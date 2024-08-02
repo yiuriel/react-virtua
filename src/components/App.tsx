@@ -11,6 +11,9 @@ export const App = () => {
   return (
     <List
       items={itemsArray}
+      itemHeight={20}
+      throttle
+      throttleDelay={200}
       renderItem={({ data }) => (
         <div style={{ width: "200px" }}>
           {data.fruit} - {data.id}

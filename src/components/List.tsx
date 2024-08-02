@@ -1,37 +1,35 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-
-export type ListItem<T> = {
-  data: T;
-  key: string;
-};
-
-type ListProps<T> = {
-  items: ListItem<T>[];
-  renderItem: (item: ListItem<T>) => JSX.Element;
-  itemHeight?: number;
-  listHeight?: number;
-};
-
-const DEFAULT_LIST_HEIGHT = 300;
-
-const DEFAULT_ITEM_HEIGHT = 50;
-
-const PADDED_ELEMENTS = 5;
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ListProps } from "../types";
+import {
+  DEFAULT_ITEM_HEIGHT,
+  DEFAULT_LIST_HEIGHT,
+  PADDED_ELEMENTS,
+} from "../utils/constants";
+import { ListItem } from "./ListItem";
+import { ListPad } from "./ListPad";
+import { useThrottle } from "../hooks/useThrottle";
 
 export function List<T>({
   items,
   renderItem,
   itemHeight = DEFAULT_ITEM_HEIGHT,
   listHeight = DEFAULT_LIST_HEIGHT,
+  onScroll,
+  throttle = false,
+  throttleDelay = 0,
 }: ListProps<T>) {
   const listRef = useRef<HTMLDivElement>(null);
 
   const elementsToRender = Math.ceil(listHeight / itemHeight) + PADDED_ELEMENTS;
 
+  const throttleHook = useThrottle();
+
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(elementsToRender);
 
   const handleScroll = useCallback(() => {
+    console.log("handleScroll");
+
     const { scrollTop, clientHeight } = listRef.current!;
 
     const start = Math.floor(scrollTop / itemHeight);
@@ -39,15 +37,22 @@ export function List<T>({
 
     setStartIndex(start);
     setEndIndex(end);
-  }, [itemHeight]);
+
+    if (onScroll) onScroll(start, end);
+  }, [itemHeight, onScroll]);
+
+  const throttledScrollCallback = useMemo(
+    () => (throttle ? throttleHook(handleScroll, throttleDelay) : handleScroll),
+    [handleScroll, throttle, throttleDelay, throttleHook]
+  );
 
   useEffect(() => {
     const list = listRef.current!;
-    list.addEventListener("scroll", handleScroll);
+    list.addEventListener("scroll", throttledScrollCallback);
     return () => {
-      list.removeEventListener("scroll", handleScroll);
+      list.removeEventListener("scroll", throttledScrollCallback);
     };
-  }, [handleScroll]);
+  }, [handleScroll, throttledScrollCallback]);
 
   return (
     <div
@@ -60,14 +65,17 @@ export function List<T>({
         margin: 0,
       }}
     >
-      {startIndex > 0 && <div style={{ height: itemHeight * startIndex }} />}
+      {startIndex > 0 && <ListPad height={itemHeight * startIndex} />}
       {items.slice(startIndex, endIndex).map((item) => (
-        <div key={item.key} style={{ height: `${itemHeight}px` }}>
-          {renderItem(item)}
-        </div>
+        <ListItem
+          key={item.key}
+          item={item}
+          renderItem={renderItem}
+          itemHeight={itemHeight}
+        />
       ))}
       {endIndex < items.length && (
-        <div style={{ height: itemHeight * (items.length - endIndex) }} />
+        <ListPad height={itemHeight * (items.length - endIndex)} />
       )}
     </div>
   );
