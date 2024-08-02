@@ -15,6 +15,16 @@
     },
     "./styles": "./dist/style.css"
   },
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "react-virtua",
+    "react virtualization",
+    "react virtual list",
+    "react infinite list",
+    "react virtualized list",
+    "react list virtualization"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
