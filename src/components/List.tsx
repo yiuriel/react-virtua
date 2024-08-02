@@ -27,12 +27,13 @@ export function List<T>({
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(elementsToRender);
 
+  // scroll callback
   const handleScroll = useCallback(() => {
-    console.log("handleScroll");
-
     const { scrollTop, clientHeight } = listRef.current!;
 
+    // calculate start and end index
     const start = Math.floor(scrollTop / itemHeight);
+    // +1 to include the last element
     const end = start + Math.ceil(clientHeight / itemHeight) + 1;
 
     setStartIndex(start);
@@ -41,11 +42,13 @@ export function List<T>({
     if (onScroll) onScroll(start, end);
   }, [itemHeight, onScroll]);
 
+  // throttle scroll callback
   const throttledScrollCallback = useMemo(
     () => (throttle ? throttleHook(handleScroll, throttleDelay) : handleScroll),
     [handleScroll, throttle, throttleDelay, throttleHook]
   );
 
+  // listen for scroll events
   useEffect(() => {
     const list = listRef.current!;
     list.addEventListener("scroll", throttledScrollCallback);
