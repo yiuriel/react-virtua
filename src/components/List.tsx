@@ -17,6 +17,7 @@ export function List<T>({
   onScroll,
   throttle = false,
   throttleDelay = 0,
+  style,
 }: ListProps<T>) {
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -36,7 +37,7 @@ export function List<T>({
     // +1 to include the last element
     const end = start + Math.ceil(clientHeight / itemHeight) + 1;
 
-    setStartIndex(start);
+    setStartIndex(start > 0 ? start - PADDED_ELEMENTS : 0);
     setEndIndex(end);
 
     if (onScroll) onScroll(start, end);
@@ -46,6 +47,13 @@ export function List<T>({
   const throttledScrollCallback = useMemo(
     () => (throttle ? throttleHook(handleScroll, throttleDelay) : handleScroll),
     [handleScroll, throttle, throttleDelay, throttleHook]
+  );
+
+  const memoizedStyle = useMemo(
+    () => ({
+      ...style,
+    }),
+    [style]
   );
 
   // listen for scroll events
@@ -61,11 +69,13 @@ export function List<T>({
     <div
       ref={listRef}
       style={{
-        height: DEFAULT_LIST_HEIGHT,
+        ...memoizedStyle,
+        height: listHeight,
         width: "100%",
         overflowY: "auto",
-        padding: 0,
-        margin: 0,
+        overflowX: "hidden",
+        padding: style?.padding || 0,
+        margin: style?.margin || 0,
       }}
     >
       {startIndex > 0 && <ListPad height={itemHeight * startIndex} />}
@@ -75,6 +85,7 @@ export function List<T>({
           item={item}
           renderItem={renderItem}
           itemHeight={itemHeight}
+          style={item.style}
         />
       ))}
       {endIndex < items.length && (
