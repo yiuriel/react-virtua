@@ -1,6 +1,6 @@
 import { List } from "./List";
 
-const itemsArray = Array.from({ length: 1000000 }, (_, index) => ({
+const itemsArray = Array.from({ length: 100000 }, (_, index) => ({
   key: index.toString(),
   data: {
     fruit: Math.random().toString(36).substring(7),
@@ -18,7 +18,6 @@ export const App = () => {
         items={itemsArray}
         itemHeight={20}
         throttle
-        throttleDelay={200}
         listHeight={window.innerHeight}
         renderItem={({ data }) => (
           <div>

@@ -25,3 +25,20 @@ export type ListItemProps<T> = {
 export type ListPadProps = {
   height?: number;
 };
+
+export enum BrowserName {
+  unknown = "unknown",
+  chrome = "chrome",
+  firefox = "firefox",
+  safari = "safari",
+  edge = "edge",
+}
+
+export type BrowserMaxHeights = {
+  [key in BrowserName]: number;
+};
+
+export interface BrowserInfo {
+  name: BrowserName;
+  maxPixels: number;
+}
