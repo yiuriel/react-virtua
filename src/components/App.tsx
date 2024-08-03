@@ -1,6 +1,6 @@
 import { List } from "./List";
 
-const itemsArray = Array.from({ length: 10000 }, (_, index) => ({
+const itemsArray = Array.from({ length: 1000000 }, (_, index) => ({
   key: index.toString(),
   data: {
     fruit: Math.random().toString(36).substring(7),
