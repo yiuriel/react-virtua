@@ -1,5 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { PADDED_ELEMENTS } from "../utils/constants";
 import { List } from "./List";
 
 describe("List component with vitest", () => {
@@ -17,7 +18,10 @@ describe("List component with vitest", () => {
     expect(await getByText("orange")).toBeInTheDocument();
   });
 
-  it("renders only the visible items", async () => {
+  it("renders only the visible + padded (3 by default) items", async () => {
+    const itemHeight = 20;
+    const listHeight = 200;
+
     const itemsArray = Array.from({ length: 100 }, (_, index) => ({
       key: index.toString(),
       data: {
@@ -28,8 +32,8 @@ describe("List component with vitest", () => {
     const { getAllByRole } = render(
       <List
         items={itemsArray}
-        itemHeight={20}
-        listHeight={200}
+        itemHeight={itemHeight}
+        listHeight={listHeight}
         renderItem={({ data }) => (
           <div style={{ width: "200px" }}>
             {data.fruit} - {data.id}
@@ -38,6 +42,8 @@ describe("List component with vitest", () => {
       />
     );
     const visibleItems = getAllByRole("listitem");
-    expect(visibleItems.length).toBeLessThanOrEqual(13);
+    expect(visibleItems.length).toBeLessThanOrEqual(
+      listHeight / itemHeight + PADDED_ELEMENTS
+    );
   });
 });
