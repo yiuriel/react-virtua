@@ -1,6 +1,6 @@
 export type ListItem<T> = {
   data: T;
-  key: string;
+  key?: string;
   style?: React.CSSProperties;
 };
 

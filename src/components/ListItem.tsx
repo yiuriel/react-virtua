@@ -7,7 +7,11 @@ export function ListItem<T>({
   style,
 }: ListItemProps<T>) {
   return (
-    <div key={item.key} style={{ ...style, height: `${itemHeight}px` }}>
+    <div
+      key={item.key}
+      style={{ ...style, height: `${itemHeight}px` }}
+      role="listitem"
+    >
       {renderItem(item)}
     </div>
   );

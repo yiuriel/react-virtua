@@ -77,11 +77,12 @@ export function List<T>({
         padding: style?.padding || 0,
         margin: style?.margin || 0,
       }}
+      role="list"
     >
       {startIndex > 0 && <ListPad height={itemHeight * startIndex} />}
-      {items.slice(startIndex, endIndex).map((item) => (
+      {items.slice(startIndex, endIndex).map((item, index) => (
         <ListItem
-          key={item.key}
+          key={item.key || index}
           item={item}
           renderItem={renderItem}
           itemHeight={itemHeight}

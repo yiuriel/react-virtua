@@ -21,6 +21,8 @@
     "typeRoots": ["./dist/index.d.ts", "node_modules/@types"]
   },
   /* include /index.ts*/
-  "include": ["src", "./index.ts"],
+  "include": ["src", "./index.ts", "./vitest.setup.ts"],
+  "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }]
+  
 }
