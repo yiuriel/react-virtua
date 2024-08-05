@@ -42,6 +42,7 @@ export default defineConfig({
     react(),
     dts({
       exclude: ["./src/main.tsx", "./src/components/App.tsx"],
+      insertTypesEntry: true,
     }),
   ],
 });
