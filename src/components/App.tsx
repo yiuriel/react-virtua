@@ -6,9 +6,6 @@ const itemsArray = Array.from({ length: 100000 }, (_, index) => ({
     fruit: Math.random().toString(36).substring(7),
     id: index,
   },
-  style: {
-    width: "200px",
-  },
 }));
 
 export const App = () => {
@@ -19,9 +16,9 @@ export const App = () => {
         itemHeight={20}
         throttle
         listHeight={window.innerHeight}
-        renderItem={({ data }) => (
+        renderItem={(item) => (
           <div>
-            {data.fruit} - {data.id}
+            {item.data.fruit} - {item.data.id}
           </div>
         )}
       />

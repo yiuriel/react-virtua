@@ -1,11 +1,11 @@
-import { ListItemProps } from "../types";
+import { ListItemProps, StyledListItem } from "../types";
 
 export function ListItem<T>({
   item,
   renderItem,
   itemHeight,
   style,
-}: ListItemProps<T>) {
+}: ListItemProps<T extends StyledListItem ? T : T & StyledListItem>) {
   return (
     <div
       key={item.key}

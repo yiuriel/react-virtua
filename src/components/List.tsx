@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ListProps } from "../types";
+import { useThrottle } from "../hooks/useThrottle";
+import type { ListProps, StyledListItem } from "../types";
 import {
   DEFAULT_ITEM_HEIGHT,
   DEFAULT_LIST_HEIGHT,
   PADDED_ELEMENTS,
 } from "../utils/constants";
+import { detectBrowser } from "../utils/helpers";
 import { ListItem } from "./ListItem";
 import { ListPad } from "./ListPad";
-import { useThrottle } from "../hooks/useThrottle";
-import { detectBrowser } from "../utils/helpers";
 
 export function List<T>({
   items,
@@ -17,46 +17,48 @@ export function List<T>({
   listHeight = DEFAULT_LIST_HEIGHT,
   onScroll,
   throttle = false,
-  throttleDelay = 100,
+  throttleDelay = 50,
   style,
-}: ListProps<T>) {
+}: ListProps<T extends StyledListItem ? T : T & StyledListItem>) {
   const listRef = useRef<HTMLDivElement>(null);
-
-  const elementsToRender = Math.ceil(listHeight / itemHeight) + PADDED_ELEMENTS;
+  const startIndexRef = useRef(0);
+  const endIndexRef = useRef(
+    Math.ceil(listHeight / itemHeight) + PADDED_ELEMENTS
+  );
 
   const throttleHook = useThrottle();
 
-  const [startIndex, setStartIndex] = useState(0);
-  const [endIndex, setEndIndex] = useState(elementsToRender);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setScrollTop] = useState(0);
 
-  // scroll callback
   const handleScroll = useCallback(() => {
-    const { scrollTop, clientHeight } = listRef.current!;
+    console.log("handleScroll");
 
-    // calculate start and end index
+    if (!listRef.current) return;
+
+    const { scrollTop, clientHeight } = listRef.current;
+
     const start = Math.floor(scrollTop / itemHeight);
-    // +1 to include the last element
     const end = start + Math.ceil(clientHeight / itemHeight);
 
-    setStartIndex(
+    startIndexRef.current =
       start > 0
         ? start - PADDED_ELEMENTS > 0
           ? start - PADDED_ELEMENTS
           : start
-        : 0
-    );
-    setEndIndex(
+        : 0;
+    endIndexRef.current =
       end < items.length
         ? end + PADDED_ELEMENTS < items.length
           ? end + PADDED_ELEMENTS
           : end
-        : items.length
-    );
+        : items.length;
 
-    if (onScroll) onScroll(start, end);
+    setScrollTop(scrollTop);
+
+    if (onScroll) onScroll(startIndexRef.current, endIndexRef.current);
   }, [itemHeight, items.length, onScroll]);
 
-  // throttle scroll callback
   const throttledScrollCallback = useMemo(
     () => (throttle ? throttleHook(handleScroll, throttleDelay) : handleScroll),
     [handleScroll, throttle, throttleDelay, throttleHook]
@@ -69,25 +71,24 @@ export function List<T>({
     [style]
   );
 
-  // listen for scroll events
   useEffect(() => {
-    const list = listRef.current!;
+    const list = listRef.current;
+    if (!list) return;
+
     list.addEventListener("scroll", throttledScrollCallback);
     return () => {
       list.removeEventListener("scroll", throttledScrollCallback);
     };
-  }, [handleScroll, throttledScrollCallback]);
+  }, [throttledScrollCallback]);
 
-  const paddingTop = itemHeight * startIndex;
-  const paddingBottom = itemHeight * (items.length - endIndex);
+  const paddingTop = itemHeight * startIndexRef.current;
+  const paddingBottom = itemHeight * (items.length - endIndexRef.current);
 
-  const slicedItems = items.slice(startIndex, endIndex);
+  const slicedItems = items.slice(startIndexRef.current, endIndexRef.current);
 
   if (process.env.NODE_ENV !== "production") {
     const totalHeight =
       paddingTop + slicedItems.length * itemHeight + paddingBottom;
-
-    console.log(totalHeight, detectBrowser().maxPixels);
 
     if (totalHeight > detectBrowser().maxPixels) {
       console.warn(
@@ -107,20 +108,21 @@ export function List<T>({
         overflowX: "hidden",
         padding: style?.padding || 0,
         margin: style?.margin || 0,
+        willChange: "scroll-position, contents",
       }}
       role="list"
     >
-      {startIndex > 0 && <ListPad height={paddingTop} />}
+      {startIndexRef.current > 0 && <ListPad height={paddingTop} />}
       {slicedItems.map((item, index) => (
         <ListItem
-          key={item.key || index}
+          key={`react-virtual-list-item-${index}`}
           item={item}
           renderItem={renderItem}
           itemHeight={itemHeight}
           style={item.style}
         />
       ))}
-      {endIndex < items.length && <ListPad height={paddingBottom} />}
+      {endIndexRef.current < items.length && <ListPad height={paddingBottom} />}
     </div>
   );
 }

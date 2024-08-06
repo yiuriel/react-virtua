@@ -1,12 +1,11 @@
-export type ListItem<T> = {
-  data: T;
-  key?: string;
+export type StyledListItem = {
   style?: React.CSSProperties;
+  key: string;
 };
 
-export type ListProps<T> = {
-  items: ListItem<T>[];
-  renderItem: (item: ListItem<T>) => JSX.Element;
+export type ListProps<T extends StyledListItem> = {
+  items: T[];
+  renderItem: (item: T) => JSX.Element;
   itemHeight?: number;
   listHeight?: number;
   onScroll?: (startIndex: number, endIndex: number) => void;
@@ -15,9 +14,9 @@ export type ListProps<T> = {
   style?: React.CSSProperties;
 };
 
-export type ListItemProps<T> = {
-  item: ListItem<T>;
-  renderItem: (item: ListItem<T>) => JSX.Element;
+export type ListItemProps<T extends { style?: React.CSSProperties }> = {
+  item: T;
+  renderItem: (item: T) => JSX.Element;
   itemHeight?: number;
   style?: React.CSSProperties;
 };
