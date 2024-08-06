@@ -32,8 +32,6 @@ export function List<T>({
   const [_, setScrollTop] = useState(0);
 
   const handleScroll = useCallback(() => {
-    console.log("handleScroll");
-
     if (!listRef.current) return;
 
     const { scrollTop, clientHeight } = listRef.current;
