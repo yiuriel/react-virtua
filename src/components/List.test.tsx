@@ -6,9 +6,9 @@ import { List } from "./List";
 describe("List component with vitest", () => {
   it("renders the list items", async () => {
     const items = [
-      { data: { fruit: "apple", id: 1 } },
-      { data: { fruit: "banana", id: 2 } },
-      { data: { fruit: "orange", id: 3 } },
+      { key: "", data: { fruit: "apple", id: 1 } },
+      { key: "", data: { fruit: "banana", id: 2 } },
+      { key: "", data: { fruit: "orange", id: 3 } },
     ];
     const { getByText } = render(
       <List items={items} renderItem={({ data }) => <div>{data.fruit}</div>} />
